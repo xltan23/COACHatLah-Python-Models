@@ -1,0 +1,7 @@
+models/
+train/
+test/
+__pycache__/
+.ipynb_checkpoints/
+.virtual_documents/
+.jupyter/

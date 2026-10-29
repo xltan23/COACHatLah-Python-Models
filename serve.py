@@ -15,6 +15,7 @@ Then, e.g. from Java (or curl):
     -> {"toxic": 0.999, "inappropriate": 0.41, "cyberbullying": 0.87}
 """
 
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -22,10 +23,27 @@ from pydantic import BaseModel
 
 import inference
 
+MODELS_DIR = "models"
+
+
+def ensure_models() -> None:
+    """On Railway, fetch models/ from the Hugging Face repo named by HF_MODEL_REPO.
+
+    Locally HF_MODEL_REPO is unset, so the existing models/ folder is used as-is.
+    HF_TOKEN is only needed when the repo is private.
+    """
+    repo_id = os.environ.get("HF_MODEL_REPO")
+    if not repo_id:
+        return
+    from huggingface_hub import snapshot_download
+
+    snapshot_download(repo_id=repo_id, local_dir=MODELS_DIR, token=os.environ.get("HF_TOKEN"))
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    app.state.registry = inference.load_registry("models")
+    ensure_models()
+    app.state.registry = inference.load_registry(MODELS_DIR)
     yield
 
 

@@ -1,0 +1,8 @@
+{
+  "$schema": "https://railway.com/railway.schema.json",
+  "deploy": {
+    "startCommand": "uvicorn serve:app --host :: --port ${PORT:-8000}",
+    "healthcheckPath": "/health",
+    "healthcheckTimeout": 600
+  }
+}
